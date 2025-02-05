@@ -14,6 +14,10 @@ Documentation
 
 Requirements
 
+socket.io
+express
+nodemon
+
 Setup
 
 Testing
