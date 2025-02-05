@@ -18,6 +18,23 @@ socket.io
 express
 nodemon
 
+Usage:
+
+const socket = io("http://localhost:3000");
+
+// Register user
+socket.emit("register user", 1);
+
+// Send a message
+socket.emit("chat message", { from: 1, to: 5, message: "Hey Eve!" });
+
+// Receive messages
+socket.on("chat message", (data) => {
+    console.log(`${data.from}: ${data.message}`);
+});
+
+
+
 Setup
 
 Testing
