@@ -1,51 +1,58 @@
-# chat
+# Chat App
 
-Test file location :
+A real-time chat application with contact access, built using Socket.io and Express.
 
-All test files must be located in src/tests/ and follow the .test.ts naming convention. Only these files will be included in test execution and coverage reports.
+## Features
 
-Don't forget to delete a.test.ts
+- Real-time messaging with WebSockets
+- User contact management
+- REST API for fetching users and their contacts
 
-Description
+## Table of Contents
 
-Real time chat app and contact access 
+- [Installation](#installation)
+- [Usage](#usage)
+- [API Documentation](#api-documentation)
+- [Contact](#contact)
 
-Documentation
+## Installation
 
-Requirements
+### Requirements
 
-socket.io
-express
-nodemon
+- Node.js (latest stable version recommended)
+- npm or yarn
 
-Usage:
+### Dependencies:
 
-const socket = io("http://localhost:3000");
+- socket.io
+- express
+- nodemon
 
-// Register user
-socket.emit("register user", 1);
+### Setup
 
-// Send a message
-socket.emit("chat message", { from: 1, to: 5, message: "Hey Eve!" });
+git clone https://github.com/your-username/chat-app.git
+cd chat-app
 
-// Receive messages
-socket.on("chat message", (data) => {
-    console.log(`${data.from}: ${data.message}`);
-});
+Install dependencies:
 
+npm install
 
+Start the server:
 
-Setup
+npm run dev
 
-Testing
+## Usage
 
-Configuration
+### api-documentation
 
-Road Map
+GET /users - Returns all users .
+GET /users/:id - Fetches a specific user by ID.
+GET /users/:id/contacts - Retrieves a user's linked contacts for chat.
 
-Discussion
+Example request:
 
-Owner
+curl -X GET http://localhost:3000/users/1
 
-Leo Lomel - in charge of test and chat
-leojet02100@live.fr
+## Contact
+Owner: Leo Lomel
+Email: leojet02100@live.fr
