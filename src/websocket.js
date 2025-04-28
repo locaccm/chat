@@ -6,13 +6,13 @@ module.exports = (io) => {
   io.on("connection", (socket) => {
     console.log("A user connected");
 
-    // saves a user in the websocket
+    // ­ƒö╣ Enregistrer un utilisateur sur WebSocket
     socket.on("register user", (userId) => {
       activeUsers[userId] = socket;
       console.log(`User ${userId} registered`);
     });
 
-    // send a message via websocket
+    // ­ƒö╣ Envoyer un message via WebSocket
     socket.on("chat message", (data) => {
       const { to, message, from } = data;
       const sender = users.find((o) => o.USEN_ID == from);
@@ -40,7 +40,7 @@ module.exports = (io) => {
       }
     });
 
-    // handles disconnecting
+    // ­ƒö╣ G├®rer la d├®connexion
     socket.on("disconnect", () => {
       Object.keys(activeUsers).forEach((userId) => {
         if (activeUsers[userId] === socket) {
@@ -51,5 +51,5 @@ module.exports = (io) => {
   });
 };
 
-// export active users for testing purposes
+// Ô£à Export `activeUsers` pour permettre les tests
 module.exports.activeUsers = activeUsers;
