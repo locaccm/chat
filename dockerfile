@@ -1,20 +1,20 @@
-# Utilise une image officielle Node.js
+# Use official Node.js image
 FROM node:18
 
-# Crée un répertoire de travail
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copie les fichiers package.json
+# Copy package definition files
 COPY package*.json ./
 
-# Installe les dépendances
+# Install dependencies
 RUN npm install
 
-# Copie tout le reste du code
+# Copy application source code
 COPY . .
 
-# Spécifie le port exposé
+# Expose the application's port
 EXPOSE 3000
 
-# Démarre l'appli
+# Start the application
 CMD ["node", "src/start.js"]
