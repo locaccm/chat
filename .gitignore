@@ -18,7 +18,3 @@ dist/
 build/
 
 src/database.js
-
-tests/
-
-src/start.js

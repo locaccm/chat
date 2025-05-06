@@ -12,7 +12,7 @@ router.get("/owners", async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Erreur serveur" });
+    res.status(500).json({ error: "Error server" });
   }
 });
 
@@ -29,7 +29,7 @@ router.get("/owners/:id", async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Erreur serveur" });
+    res.status(500).json({ error: "Error server" });
   }
 });
 
@@ -42,7 +42,7 @@ router.get("/tenants", async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Erreur serveur" });
+    res.status(500).json({ error: "Error server" });
   }
 });
 
@@ -59,7 +59,7 @@ router.get("/tenants/:id", async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Erreur serveur" });
+    res.status(500).json({ error: "Error server" });
   }
 });
 
@@ -75,7 +75,7 @@ router.get("/owners/:id/tenants", async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Erreur serveur" });
+    res.status(500).json({ error: "Error server" });
   }
 });
 
@@ -98,7 +98,7 @@ router.get("/tenants/:id/owner", async (req, res) => {
     res.json(ownerResult.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Erreur serveur" });
+    res.status(500).json({ error: "Error server" });
   }
 });
 
@@ -119,7 +119,7 @@ router.get("/messages", async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Erreur serveur" });
+    res.status(500).json({ error: "Error server" });
   }
 });
 
@@ -143,7 +143,7 @@ router.post("/messages", async (req, res) => {
     res.json({ success: true, message: result.rows[0] });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Erreur serveur" });
+    res.status(500).json({ error: "Error server" });
   }
 });
 

@@ -9,7 +9,6 @@ module.exports = (io) => {
   }
 
   io.on("connection", (socket) => {
-    console.log("A user connected");
 
     socket.on("register user", async (userId) => {
       try {
@@ -21,7 +20,6 @@ module.exports = (io) => {
         }
 
         activeUsers[userId] = socket;
-        console.log(`User ${userId} registered`);
 
         socket.emit("user registered", { userId });
       } catch (err) {
@@ -65,7 +63,6 @@ module.exports = (io) => {
       for (const userId in activeUsers) {
         if (activeUsers[userId] === socket) {
           delete activeUsers[userId];
-          console.log(`User ${userId} disconnected`);
           break;
         }
       }
