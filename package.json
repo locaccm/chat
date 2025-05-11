@@ -1,23 +1,43 @@
 {
   "name": "chat",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Chat api for accessing contacts and their messages",
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
+    "start": "node dist/start.js",
+    "dev": "ts-node src/start.ts",
     "test": "jest"
   },
   "keywords": [],
   "author": "Leo Lomel",
   "license": "ISC",
   "dependencies": {
+    "@types/express": "^4.17.0",
     "dotenv": "^16.5.0",
     "express": "^4.21.2",
     "pg": "^8.15.6",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.26.0",
+    "@types/jest": "^29.5.14",
+    "@types/pg": "^8.15.0",
+    "@types/supertest": "^6.0.3",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
+    "@typescript-eslint/eslint-plugin": "^8.32.0",
+    "@typescript-eslint/parser": "^8.32.0",
+    "eslint": "^9.26.0",
+    "eslint-plugin-jsdoc": "^50.6.11",
+    "eslint-plugin-prettier": "^5.4.0",
     "jest": "^29.7.0",
     "socket.io-client": "^4.8.1",
-    "supertest": "^7.1.0"
+    "supertest": "^7.1.0",
+    "ts-jest": "^29.3.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   }
 }

@@ -1,5 +1,5 @@
-const request = require("supertest");
-const { app, server } = require("../src/server");
+import request from "supertest";
+import { app, server } from "../src/server";
 
 afterAll((done) => {
   server.close(() => {
