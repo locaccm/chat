@@ -1,6 +1,6 @@
 {
   "name": "chat",
-  "version": "0.4.0",
+  "version": "1.0.0",
   "description": "Chat api for accessing contacts and their messages",
   "main": "index.js",
   "scripts": {
