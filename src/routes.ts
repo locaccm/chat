@@ -239,8 +239,14 @@ router.get("/messages", async (req: Request, res: Response) => {
     const messages = await prisma.mESSAGE.findMany({
       where: {
         OR: [
-          { MESN_SENDER: parseInt(String(from)), MESN_RECEIVER: parseInt(String(to)) },
-          { MESN_SENDER: parseInt(String(to)), MESN_RECEIVER: parseInt(String(from)) },
+          {
+            MESN_SENDER: parseInt(String(from)),
+            MESN_RECEIVER: parseInt(String(to)),
+          },
+          {
+            MESN_SENDER: parseInt(String(to)),
+            MESN_RECEIVER: parseInt(String(from)),
+          },
         ],
       },
       orderBy: {
