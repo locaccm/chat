@@ -1,14 +1,14 @@
 import request from "supertest";
-import { app, server } from "../src/server";
-import prisma from "../src/prisma";
+import { app, server } from "../server";
+import prisma from "../prisma";
 const {
   mockFindMany,
   mockFindFirst,
   mockFindUnique,
   mockCreate,
-} = require("../src/prisma");
+} = require("../prisma");
 
-jest.mock("../src/prisma");
+jest.mock("../prisma");
 
 afterAll((done) => {
   server.close(() => {
