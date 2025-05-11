@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import pool from "./db";
+import prisma from "./prisma";
 
 const router = express.Router();
 
@@ -19,11 +19,10 @@ const router = express.Router();
  */
 router.get("/owners", async (req: Request, res: Response) => {
   try {
-    const result = await pool.query(
-      'SELECT * FROM "USER" WHERE "USEC_TYPE" = $1',
-      ["OWNER"],
-    );
-    res.json(result.rows);
+    const owners = await prisma.uSER.findMany({
+      where: { USEC_TYPE: "OWNER" },
+    });
+    res.json(owners);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error server" });
@@ -55,13 +54,11 @@ router.get("/owners", async (req: Request, res: Response) => {
  */
 router.get("/owners/:id", async (req: Request, res: Response) => {
   try {
-    const result = await pool.query(
-      'SELECT * FROM "USER" WHERE "USEN_ID" = $1 AND "USEC_TYPE" = $2',
-      [req.params.id, "OWNER"],
-    );
-    if (result.rows.length === 0)
-      return res.status(404).json({ error: "Owner not found" });
-    res.json(result.rows[0]);
+    const owner = await prisma.uSER.findFirst({
+      where: { USEN_ID: parseInt(req.params.id), USEC_TYPE: "OWNER" },
+    });
+    if (!owner) return res.status(404).json({ error: "Owner not found" });
+    res.json(owner);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error server" });
@@ -84,11 +81,10 @@ router.get("/owners/:id", async (req: Request, res: Response) => {
  */
 router.get("/tenants", async (req: Request, res: Response) => {
   try {
-    const result = await pool.query(
-      'SELECT * FROM "USER" WHERE "USEC_TYPE" = $1',
-      ["TENANT"],
-    );
-    res.json(result.rows);
+    const tenants = await prisma.uSER.findMany({
+      where: { USEC_TYPE: "TENANT" },
+    });
+    res.json(tenants);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error server" });
@@ -120,13 +116,11 @@ router.get("/tenants", async (req: Request, res: Response) => {
  */
 router.get("/tenants/:id", async (req: Request, res: Response) => {
   try {
-    const result = await pool.query(
-      'SELECT * FROM "USER" WHERE "USEN_ID" = $1 AND "USEC_TYPE" = $2',
-      [req.params.id, "TENANT"],
-    );
-    if (result.rows.length === 0)
-      return res.status(404).json({ error: "Tenant not found" });
-    res.json(result.rows[0]);
+    const tenant = await prisma.uSER.findFirst({
+      where: { USEN_ID: parseInt(req.params.id), USEC_TYPE: "TENANT" },
+    });
+    if (!tenant) return res.status(404).json({ error: "Tenant not found" });
+    res.json(tenant);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error server" });
@@ -156,11 +150,13 @@ router.get("/tenants/:id", async (req: Request, res: Response) => {
  */
 router.get("/owners/:id/tenants", async (req: Request, res: Response) => {
   try {
-    const result = await pool.query(
-      'SELECT * FROM "USER" WHERE "USEC_TYPE" = $1 AND "USEN_INVITE" = $2',
-      ["TENANT", req.params.id],
-    );
-    res.json(result.rows);
+    const tenants = await prisma.uSER.findMany({
+      where: {
+        USEC_TYPE: "TENANT",
+        USEN_INVITE: parseInt(req.params.id),
+      },
+    });
+    res.json(tenants);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error server" });
@@ -192,23 +188,17 @@ router.get("/owners/:id/tenants", async (req: Request, res: Response) => {
  */
 router.get("/tenants/:id/owner", async (req: Request, res: Response) => {
   try {
-    const tenantResult = await pool.query(
-      'SELECT * FROM "USER" WHERE "USEN_ID" = $1 AND "USEC_TYPE" = $2',
-      [req.params.id, "TENANT"],
-    );
-    if (tenantResult.rows.length === 0)
-      return res.status(404).json({ error: "Tenant not found" });
+    const tenant = await prisma.uSER.findFirst({
+      where: { USEN_ID: parseInt(req.params.id), USEC_TYPE: "TENANT" },
+    });
+    if (!tenant) return res.status(404).json({ error: "Tenant not found" });
 
-    const ownerId = tenantResult.rows[0].USEN_INVITE;
-    const ownerResult = await pool.query(
-      'SELECT * FROM "USER" WHERE "USEN_ID" = $1',
-      [ownerId],
-    );
+    const owner = await prisma.uSER.findFirst({
+      where: { USEN_ID: tenant.USEN_INVITE ?? -1 },
+    });
+    if (!owner) return res.status(404).json({ error: "Owner not found" });
 
-    if (ownerResult.rows.length === 0)
-      return res.status(404).json({ error: "Owner not found" });
-
-    res.json(ownerResult.rows[0]);
+    res.json(owner);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error server" });
@@ -246,14 +236,18 @@ router.get("/messages", async (req: Request, res: Response) => {
   const { from, to } = req.query;
 
   try {
-    const result = await pool.query(
-      `SELECT * FROM "MESSAGE"
-       WHERE ("MESN_SENDER" = $1 AND "MESN_RECEIVER" = $2) 
-          OR ("MESN_SENDER" = $2 AND "MESN_RECEIVER" = $1) 
-       ORDER BY "MESD_DATE" ASC`,
-      [from, to],
-    );
-    res.json(result.rows);
+    const messages = await prisma.mESSAGE.findMany({
+      where: {
+        OR: [
+          { MESN_SENDER: parseInt(String(from)), MESN_RECEIVER: parseInt(String(to)) },
+          { MESN_SENDER: parseInt(String(to)), MESN_RECEIVER: parseInt(String(from)) },
+        ],
+      },
+      orderBy: {
+        MESD_DATE: "asc",
+      },
+    });
+    res.json(messages);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error server" });
@@ -300,14 +294,15 @@ router.post("/messages", async (req: Request, res: Response) => {
   }
 
   try {
-    const result = await pool.query(
-      `INSERT INTO "MESSAGE" ("MESN_SENDER", "MESN_RECEIVER", "MESC_CONTENT", "MESD_DATE") 
-       VALUES ($1, $2, $3, NOW()) 
-       RETURNING *`,
-      [sender, receiver, content],
-    );
-
-    res.json({ success: true, message: result.rows[0] });
+    const newMessage = await prisma.mESSAGE.create({
+      data: {
+        MESN_SENDER: parseInt(sender),
+        MESN_RECEIVER: parseInt(receiver),
+        MESC_CONTENT: content,
+        MESD_DATE: new Date(),
+      },
+    });
+    res.json({ success: true, message: newMessage });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error server" });
