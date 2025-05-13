@@ -3,6 +3,31 @@ import prisma from "./prisma";
 
 const router = express.Router();
 
+const getUsersByType = async (type: string, res: Response) => {
+  try {
+    const users = await prisma.uSER.findMany({
+      where: { USEC_TYPE: type },
+    });
+    res.json(users);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error server" });
+  }
+};
+
+const getUserByIdAndType = async (id: number, type: string, res: Response) => {
+  try {
+    const user = await prisma.uSER.findFirst({
+      where: { USEN_ID: id, USEC_TYPE: type },
+    });
+    if (!user) return res.status(404).json({ error: `${type} not found` });
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error server" });
+  }
+};
+
 /**
  * @swagger
  * /api/owners:
@@ -17,17 +42,7 @@ const router = express.Router();
  *       500:
  *         description: Server error
  */
-router.get("/owners", async (req: Request, res: Response) => {
-  try {
-    const owners = await prisma.uSER.findMany({
-      where: { USEC_TYPE: "OWNER" },
-    });
-    res.json(owners);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Error server" });
-  }
-});
+router.get("/owners", (req, res) => getUsersByType("OWNER", res));
 
 /**
  * @swagger
@@ -52,18 +67,7 @@ router.get("/owners", async (req: Request, res: Response) => {
  *       500:
  *         description: Server error
  */
-router.get("/owners/:id", async (req: Request, res: Response) => {
-  try {
-    const owner = await prisma.uSER.findFirst({
-      where: { USEN_ID: parseInt(req.params.id), USEC_TYPE: "OWNER" },
-    });
-    if (!owner) return res.status(404).json({ error: "Owner not found" });
-    res.json(owner);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Error server" });
-  }
-});
+router.get("/owners/:id", (req, res) => getUserByIdAndType(parseInt(req.params.id), "OWNER", res));
 
 /**
  * @swagger
@@ -79,17 +83,7 @@ router.get("/owners/:id", async (req: Request, res: Response) => {
  *       500:
  *         description: Server error
  */
-router.get("/tenants", async (req: Request, res: Response) => {
-  try {
-    const tenants = await prisma.uSER.findMany({
-      where: { USEC_TYPE: "TENANT" },
-    });
-    res.json(tenants);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Error server" });
-  }
-});
+router.get("/tenants", (req, res) => getUsersByType("TENANT", res));
 
 /**
  * @swagger
@@ -114,18 +108,7 @@ router.get("/tenants", async (req: Request, res: Response) => {
  *       500:
  *         description: Server error
  */
-router.get("/tenants/:id", async (req: Request, res: Response) => {
-  try {
-    const tenant = await prisma.uSER.findFirst({
-      where: { USEN_ID: parseInt(req.params.id), USEC_TYPE: "TENANT" },
-    });
-    if (!tenant) return res.status(404).json({ error: "Tenant not found" });
-    res.json(tenant);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Error server" });
-  }
-});
+router.get("/tenants/:id", (req, res) => getUserByIdAndType(parseInt(req.params.id), "TENANT", res));
 
 /**
  * @swagger
