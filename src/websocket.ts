@@ -1,9 +1,13 @@
 import { Server, Socket } from "socket.io";
-import pool from "./db";
+
+export type DBClient = {
+  getUserById: (id: string) => Promise<any | null>;
+  saveMessage: (from: string, to: string, message: string) => Promise<any>;
+};
 
 const activeUsers: Record<string, Socket> = {};
 
-const setupWebSocket = (io: Server): void => {
+const setupWebSocket = (io: Server, db: DBClient): void => {
   if (!io) {
     throw new Error("io is not defined");
   }
@@ -11,12 +15,9 @@ const setupWebSocket = (io: Server): void => {
   io.on("connection", (socket: Socket) => {
     socket.on("register user", async (userId: string) => {
       try {
-        const result = await pool.query(
-          'SELECT * FROM "USER" WHERE "USEN_ID" = $1',
-          [userId],
-        );
+        const user = await db.getUserById(userId);
 
-        if (result.rows.length === 0) {
+        if (!user) {
           socket.emit("error", { error: "User not found" });
           return;
         }
@@ -40,21 +41,20 @@ const setupWebSocket = (io: Server): void => {
         }
 
         try {
-          const result = await pool.query(
-            `INSERT INTO "MESSAGE" ("MESN_SENDER", "MESN_RECEIVER", "MESC_CONTENT", "MESD_DATE", "MESB_READ")
-           VALUES ($1, $2, $3, NOW(), false)
-           RETURNING *`,
-            [from, to, message],
-          );
+          const savedMessage = await db.saveMessage(from, to, message);
 
-          const savedMessage = result.rows[0];
+          const messageToSend = {
+            from: savedMessage.MESN_SENDER,
+            to: savedMessage.MESN_RECEIVER,
+            message: savedMessage.MESC_CONTENT,
+          };
 
           if (activeUsers[to]) {
-            activeUsers[to].emit("chat message", savedMessage);
+            activeUsers[to].emit("chat message", messageToSend);
           }
 
           if (activeUsers[from]) {
-            activeUsers[from].emit("chat message", savedMessage);
+            activeUsers[from].emit("chat message", messageToSend);
           }
         } catch (err) {
           console.error("Error saving message:", err);
@@ -74,12 +74,4 @@ const setupWebSocket = (io: Server): void => {
   });
 };
 
-const closeServer = (io: Server, done: () => void): void => {
-  if (io) {
-    io.close(() => done());
-  } else {
-    done();
-  }
-};
-
-export { setupWebSocket as default, activeUsers, closeServer };
+export { setupWebSocket, activeUsers };

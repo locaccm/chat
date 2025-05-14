@@ -83,12 +83,12 @@ describe("API Tests", () => {
         USEN_ID: 2,
         USEC_TYPE: "TENANT",
         USEN_INVITE: 1,
-      }) // tenant
+      })
       .mockResolvedValueOnce({
         USEN_ID: 1,
         USEC_TYPE: "OWNER",
         USEC_LNAME: "Smith",
-      }); // owner
+      });
 
     const res = await request(app).get("/api/tenants/2/owner");
     expect(res.status).toBe(200);

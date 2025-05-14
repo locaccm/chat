@@ -67,7 +67,9 @@ router.get("/owners", (req, res) => getUsersByType("OWNER", res));
  *       500:
  *         description: Server error
  */
-router.get("/owners/:id", (req, res) => getUserByIdAndType(parseInt(req.params.id), "OWNER", res));
+router.get("/owners/:id", (req, res) =>
+  getUserByIdAndType(parseInt(req.params.id), "OWNER", res),
+);
 
 /**
  * @swagger
@@ -108,7 +110,9 @@ router.get("/tenants", (req, res) => getUsersByType("TENANT", res));
  *       500:
  *         description: Server error
  */
-router.get("/tenants/:id", (req, res) => getUserByIdAndType(parseInt(req.params.id), "TENANT", res));
+router.get("/tenants/:id", (req, res) =>
+  getUserByIdAndType(parseInt(req.params.id), "TENANT", res),
+);
 
 /**
  * @swagger

@@ -19,5 +19,5 @@ export interface Message {
   MESN_SENDER: number;
   MESC_CONTENT: string;
   MESD_DATE: string;
-  MESB_READ: boolean | 0 | 1;
+  MESB_NEW: boolean | 0 | 1;
 }
