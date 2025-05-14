@@ -44,6 +44,15 @@ describe("API Tests", () => {
     expect(res.body.USEC_TYPE).toBe("OWNER");
   });
 
+  test("GET /api/owners/:id should return 404 if owner not found", async () => {
+    mockFindFirst.mockResolvedValue(null); // Simule que le propriétaire n'existe pas
+
+    const res = await request(app).get("/api/owners/999"); // ID inexistant
+
+    expect(res.status).toBe(404);
+    expect(res.body).toEqual({ error: "OWNER not found" });
+  });
+
   test("GET /api/tenants should return a list of tenants", async () => {
     mockFindMany.mockResolvedValue([
       { USEN_ID: 2, USEC_TYPE: "TENANT", USEC_LNAME: "Doe" },
@@ -65,6 +74,15 @@ describe("API Tests", () => {
     const res = await request(app).get("/api/tenants/2");
     expect(res.status).toBe(200);
     expect(res.body.USEC_TYPE).toBe("TENANT");
+  });
+
+  test("GET /api/tenants/:id should return 404 if tenant not found", async () => {
+    mockFindFirst.mockResolvedValue(null); // Simule que le locataire n'existe pas
+
+    const res = await request(app).get("/api/tenants/999"); // ID inexistant
+
+    expect(res.status).toBe(404);
+    expect(res.body).toEqual({ error: "TENANT not found" });
   });
 
   test("GET /api/owners/:id/tenants should return tenants of a specific owner", async () => {
