@@ -128,4 +128,19 @@ describe("API Tests", () => {
     expect(res.body.success).toBe(true);
     expect(res.body.message).toHaveProperty("MESC_CONTENT", "Hello from test!");
   });
+
+  test("POST /api/messages should return 500 on server error", async () => {
+    mockCreate.mockImplementationOnce(() => {
+      throw new Error("Mocked DB failure");
+    });
+
+    const res = await request(app).post("/api/messages").send({
+      sender: 1,
+      receiver: 2,
+      content: "This should trigger an error",
+    });
+
+    expect(res.status).toBe(500);
+    expect(res.body).toEqual({ error: "Error server" });
+  });
 });
