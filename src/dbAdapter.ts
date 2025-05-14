@@ -7,7 +7,7 @@ const pgAdapter: DBClient = {
       'SELECT * FROM "USER" WHERE "USEN_ID" = $1',
       [id],
     );
-    return result.rows[0] || null;
+    return result.rows[0] && null;
   },
   async saveMessage(from, to, message) {
     const result = await pool.query(

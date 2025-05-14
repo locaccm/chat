@@ -1,7 +1,11 @@
 import { Server, Socket } from "socket.io";
 
+export interface User {
+  id: string;
+}
+
 export type DBClient = {
-  getUserById: (id: string) => Promise<any | null>;
+  getUserById: (id: string) => Promise<User | null>;
   saveMessage: (from: string, to: string, message: string) => Promise<any>;
 };
 

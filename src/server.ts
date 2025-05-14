@@ -5,7 +5,6 @@ import routes from "./routes";
 import { setupWebSocket } from "./websocket";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger";
-import pool from "./db";
 import pgAdapter from "./dbAdapter";
 
 const app: Application = express();

@@ -1,13 +1,9 @@
-import prisma from "./__mocks__/prisma";
 import { DBClient } from "./websocket";
 
 const mockAdapter: DBClient = {
   async getUserById(id: string) {
-    if (id === "1") {
-      return { USEN_ID: "1" };
-    }
-    if (id === "2") {
-      return { USEN_ID: "2" };
+    if (id === "1" || id === "2") {
+      return { id };
     }
     return null;
   },
