@@ -45,9 +45,9 @@ describe("API Tests", () => {
   });
 
   test("GET /api/owners/:id should return 404 if owner not found", async () => {
-    mockFindFirst.mockResolvedValue(null); // Simule que le propriétaire n'existe pas
+    mockFindFirst.mockResolvedValue(null);
 
-    const res = await request(app).get("/api/owners/999"); // ID inexistant
+    const res = await request(app).get("/api/owners/999");
 
     expect(res.status).toBe(404);
     expect(res.body).toEqual({ error: "OWNER not found" });
@@ -77,9 +77,9 @@ describe("API Tests", () => {
   });
 
   test("GET /api/tenants/:id should return 404 if tenant not found", async () => {
-    mockFindFirst.mockResolvedValue(null); // Simule que le locataire n'existe pas
+    mockFindFirst.mockResolvedValue(null);
 
-    const res = await request(app).get("/api/tenants/999"); // ID inexistant
+    const res = await request(app).get("/api/tenants/999");
 
     expect(res.status).toBe(404);
     expect(res.body).toEqual({ error: "TENANT not found" });
@@ -113,6 +113,15 @@ describe("API Tests", () => {
     expect(res.body.USEC_TYPE).toBe("OWNER");
   });
 
+  test("GET /api/tenants/:id/owner should return 404 if tenant not found", async () => {
+    mockFindFirst.mockResolvedValue(null);
+
+    const res = await request(app).get("/api/tenants/999/owner");
+
+    expect(res.status).toBe(404);
+    expect(res.body).toEqual({ error: "TENANT not found" });
+  });
+
   test("GET /api/messages?from=1&to=2 should return messages between two users", async () => {
     mockFindMany.mockResolvedValueOnce([
       {
@@ -126,6 +135,21 @@ describe("API Tests", () => {
     const res = await request(app).get("/api/messages?from=1&to=2");
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
+  });
+
+  test("GET /api/tenants/:id/owner should return 404 if owner not found", async () => {
+    mockFindFirst
+      .mockResolvedValueOnce({
+        USEN_ID: 2,
+        USEC_TYPE: "TENANT",
+        USEN_INVITE: 999,
+      })
+      .mockResolvedValueOnce(null);
+
+    const res = await request(app).get("/api/tenants/2/owner");
+
+    expect(res.status).toBe(404);
+    expect(res.body).toEqual({ error: "OWNER not found" });
   });
 
   test("POST /api/messages should send a new message", async () => {
