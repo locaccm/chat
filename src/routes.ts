@@ -178,12 +178,12 @@ router.get("/tenants/:id/owner", async (req: Request, res: Response) => {
     const tenant = await prisma.uSER.findFirst({
       where: { USEN_ID: parseInt(req.params.id), USEC_TYPE: "TENANT" },
     });
-    if (!tenant) return res.status(404).json({ error: "Tenant not found" });
+    if (!tenant) return res.status(404).json({ error: "TENANT not found" });
 
     const owner = await prisma.uSER.findFirst({
       where: { USEN_ID: tenant.USEN_INVITE ?? -1 },
     });
-    if (!owner) return res.status(404).json({ error: "Owner not found" });
+    if (!owner) return res.status(404).json({ error: "OWNER not found" });
 
     res.json(owner);
   } catch (err) {
