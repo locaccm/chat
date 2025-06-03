@@ -8,8 +8,9 @@
     "start": "node dist/start.js",
     "dev": "ts-node src/start.ts",
     "test": "jest",
-    "docker:build": "docker build -t chat-service .",
-    "docker:run": "docker run -p 3000:3000 chat-service"
+    "prisma:generate": "prisma generate",
+    "prisma:db:pull": "prisma db pull",
+    "prisma:validate": "prisma validate"
   },
   "keywords": [],
   "author": "Leo Lomel",
