@@ -7,10 +7,7 @@
     "build": "tsc",
     "start": "node dist/start.js",
     "dev": "ts-node src/start.ts",
-    "test": "jest",
-    "prisma:generate": "prisma generate",
-    "prisma:db:pull": "prisma db pull",
-    "prisma:validate": "prisma validate"
+    "test": "jest"
   },
   "keywords": [],
   "author": "Leo Lomel",
