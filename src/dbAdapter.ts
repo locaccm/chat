@@ -1,20 +1,35 @@
-import pool from "./db";
-import { DBClient } from "./websocket";
+import { PrismaClient } from "@prisma/client";
+import { DBClient, User } from "./websocket";
+
+const prisma = new PrismaClient();
+
+function mapPrismaUserToUser(u: any): User {
+  const { USEN_ID, ...rest } = u;
+  return {
+    id: USEN_ID,
+    ...rest,
+  };
+}
 
 const pgAdapter: DBClient = {
-  async getUserById(id) {
-    const result = await pool.query(
-      'SELECT * FROM "USER" WHERE "USEN_ID" = $1',
-      [id],
-    );
-    return result.rows[0] && null;
+  async getUserById(id: string): Promise<User | null> {
+    const prismaUser = await prisma.uSER.findUnique({
+      where: { USEN_ID: Number(id) },
+    });
+    if (!prismaUser) return null;
+    return mapPrismaUserToUser(prismaUser);
   },
-  async saveMessage(from, to, message) {
-    const result = await pool.query(
-      'INSERT INTO "MESSAGE" ("MESN_SENDER", "MESN_RECEIVER", "MESC_CONTENT", "MESD_DATE", "MESB_NEW") VALUES ($1, $2, $3, NOW(), false) RETURNING *',
-      [from, to, message],
-    );
-    return result.rows[0];
+
+  async saveMessage(from: string, to: string, message: string) {
+    const newMessage = await prisma.mESSAGE.create({
+      data: {
+        MESN_SENDER: Number(from),
+        MESN_RECEIVER: Number(to),
+        MESC_CONTENT: message,
+        MESB_NEW: true,
+      },
+    });
+    return newMessage;
   },
 };
 

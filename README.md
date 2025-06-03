@@ -11,7 +11,6 @@ A real-time chat application with contact access, built using Socket.io and Expr
 ## Table of Contents
 
 - [Installation](#installation)
-- [Usage](#usage)
 - [API Documentation](#api-documentation)
 - [Contact](#contact)
 
@@ -41,17 +40,46 @@ Start the server:
 
 npm run dev
 
-## Usage
 
-### api-documentation
+## API Documentation
 
-GET /users - Returns all users .
-GET /users/:id - Fetches a specific user by ID.
-GET /users/:id/contacts - Retrieves a user's linked contacts for chat.
+### Owners
+- `GET /api/owners`  
+  Retourne tous les owners.
+
+- `GET /api/owners/:id`  
+  Retourne un owner spécifique par son ID.
+
+- `GET /api/owners/:id/tenants`  
+  Retourne tous les tenants invités par un owner spécifique.
+
+### Tenants
+- `GET /api/tenants`  
+  Retourne tous les tenants.
+
+- `GET /api/tenants/:id`  
+  Retourne un tenant spécifique par son ID.
+
+- `GET /api/tenants/:id/owner`  
+  Retourne l’owner qui a invité ce tenant.
+
+### Messages
+- `GET /api/messages?from=<senderId>&to=<receiverId>`  
+  Retourne tous les messages échangés entre deux utilisateurs, triés par date.
+
+- `POST /api/messages`  
+  Envoie un message entre deux utilisateurs.  
+  Body JSON attendu :
+  ```json
+  {
+    "sender": "123",
+    "receiver": "456",
+    "content": "Hello!"
+  }
 
 Example request:
 
-curl -X GET http://localhost:3000/users/1
+curl -X GET http://localhost:3000/api/owners/1
 
 ## Contact
 Owner: Leo Lomel
