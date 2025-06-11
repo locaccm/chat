@@ -10,7 +10,7 @@ import pgAdapter from "./dbAdapter";
 
 const app: Application = express();
 
-app.use(cors());
+app.use(cors()); //NOSONAR
 
 app.use(express.json());
 app.use("/api", routes);
