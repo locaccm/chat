@@ -7,7 +7,9 @@
     "build": "tsc",
     "start": "node dist/start.js",
     "dev": "ts-node src/start.ts",
-    "test": "jest"
+    "test": "jest",
+    "dbpull": "npx prisma db pull",
+    "generate": "npx prisma generate"
   },
   "keywords": [],
   "author": "Leo Lomel",
