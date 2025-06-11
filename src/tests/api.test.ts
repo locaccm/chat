@@ -215,13 +215,14 @@ describe("API Tests", () => {
   });
 
   test("GET /api/owners should return 401 if authorization fails", async () => {
-    mockedAxios.post.mockRejectedValueOnce({
-      response: {
-        status: 403,
-        data: { allowed: false },
-      },
-      message: "Access denied",
-    });
+    mockedAxios.post.mockRejectedValueOnce(
+      Object.assign(new Error("Access denied"), {
+        response: {
+          status: 403,
+          data: { allowed: false },
+        },
+      }),
+    );
 
     const res = await authGet("/api/owners", "OWNER");
 
