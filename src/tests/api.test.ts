@@ -28,7 +28,6 @@ afterAll((done) => {
   });
 });
 
-// Helpers pour centraliser les appels authentifiés
 function authGet(url: string, role: "OWNER" | "TENANT" = "OWNER") {
   return request(app).get(url).set("Authorization", `Bearer ${role}`);
 }
