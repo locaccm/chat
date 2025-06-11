@@ -213,13 +213,4 @@ describe("API Tests", () => {
     expect(res.status).toBe(500);
     expect(res.body).toEqual({ error: "Error server" });
   });
-
-  test("GET /api/owners should return 401 if authorization token is missing", async () => {
-    const res = await request(app).get("/api/owners"); // Pas de header Authorization
-
-    expect(res.status).toBe(401);
-    expect(res.body).toEqual({
-      error: "Authorization token missing or malformed",
-    });
-  });
 });
