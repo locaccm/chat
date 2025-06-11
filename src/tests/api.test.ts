@@ -214,16 +214,21 @@ describe("API Tests", () => {
     expect(res.body).toEqual({ error: "Error server" });
   });
 
-  test("GET /api/owners should return 403 if access denied by axios", async () => {
-    // Simule une réponse refusée par le middleware
-    mockedAxios.post.mockResolvedValueOnce({
-      status: 403,
-      data: { allowed: false },
+  test("GET /api/owners should return 401 if authorization fails", async () => {
+    mockedAxios.post.mockRejectedValueOnce({
+      response: {
+        status: 403,
+        data: { allowed: false },
+      },
+      message: "Access denied",
     });
 
     const res = await authGet("/api/owners", "OWNER");
 
-    expect(res.status).toBe(403);
-    expect(res.body).toEqual({ error: "Access denied" });
+    expect(res.status).toBe(401);
+    expect(res.body).toEqual({
+      error: "Authorization failed",
+      details: "Access denied",
+    });
   });
 });
