@@ -214,22 +214,12 @@ describe("API Tests", () => {
     expect(res.body).toEqual({ error: "Error server" });
   });
 
-  test("GET /api/owners should return 401 if authorization fails", async () => {
-    mockedAxios.post.mockRejectedValueOnce(
-      Object.assign(new Error("Access denied"), {
-        response: {
-          status: 403,
-          data: { allowed: false },
-        },
-      }),
-    );
-
-    const res = await authGet("/api/owners", "OWNER");
+  test("GET /api/owners should return 401 if authorization token is missing", async () => {
+    const res = await request(app).get("/api/owners"); // Pas de header Authorization
 
     expect(res.status).toBe(401);
     expect(res.body).toEqual({
-      error: "Authorization failed",
-      details: "Access denied",
+      error: "Authorization token missing or malformed",
     });
   });
 });
