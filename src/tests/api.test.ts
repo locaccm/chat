@@ -8,13 +8,37 @@ const {
   mockCreate,
 } = require("../prisma");
 
+jest.mock("axios");
 jest.mock("../prisma");
+
+import axios from "axios";
+const mockedAxios = axios as jest.Mocked<typeof axios>;
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  mockedAxios.post.mockResolvedValue({
+    status: 200,
+    data: { allowed: true },
+  });
+});
 
 afterAll((done) => {
   server.close(() => {
     done();
   });
 });
+
+// Helpers pour centraliser les appels authentifiés
+function authGet(url: string, role: "OWNER" | "TENANT" = "OWNER") {
+  return request(app).get(url).set("Authorization", `Bearer ${role}`);
+}
+
+function authPost(url: string, data: any, role: "OWNER" | "TENANT" = "OWNER") {
+  return request(app)
+    .post(url)
+    .send(data)
+    .set("Authorization", `Bearer ${role}`);
+}
 
 describe("API Tests", () => {
   beforeEach(() => {
@@ -26,7 +50,7 @@ describe("API Tests", () => {
       { USEN_ID: 1, USEC_TYPE: "OWNER", USEC_LNAME: "Smith" },
     ]);
 
-    const res = await request(app).get("/api/owners");
+    const res = await authGet("/api/owners", "OWNER");
     expect(res.status).toBe(200);
     expect(res.body.length).toBeGreaterThan(0);
     expect(res.body[0]).toHaveProperty("USEC_TYPE", "OWNER");
@@ -39,7 +63,7 @@ describe("API Tests", () => {
       USEC_LNAME: "Smith",
     });
 
-    const res = await request(app).get("/api/owners/1");
+    const res = await authGet("/api/owners/1", "TENANT");
     expect(res.status).toBe(200);
     expect(res.body.USEC_TYPE).toBe("OWNER");
   });
@@ -47,8 +71,7 @@ describe("API Tests", () => {
   test("GET /api/owners/:id should return 404 if owner not found", async () => {
     mockFindFirst.mockResolvedValue(null);
 
-    const res = await request(app).get("/api/owners/999");
-
+    const res = await authGet("/api/owners/999", "TENANT");
     expect(res.status).toBe(404);
     expect(res.body).toEqual({ error: "OWNER not found" });
   });
@@ -58,7 +81,7 @@ describe("API Tests", () => {
       { USEN_ID: 2, USEC_TYPE: "TENANT", USEC_LNAME: "Doe" },
     ]);
 
-    const res = await request(app).get("/api/tenants");
+    const res = await authGet("/api/tenants", "OWNER");
     expect(res.status).toBe(200);
     expect(res.body.length).toBeGreaterThan(0);
     expect(res.body[0].USEC_TYPE).toBe("TENANT");
@@ -71,7 +94,7 @@ describe("API Tests", () => {
       USEC_LNAME: "Doe",
     });
 
-    const res = await request(app).get("/api/tenants/2");
+    const res = await authGet("/api/tenants/2", "TENANT");
     expect(res.status).toBe(200);
     expect(res.body.USEC_TYPE).toBe("TENANT");
   });
@@ -79,8 +102,7 @@ describe("API Tests", () => {
   test("GET /api/tenants/:id should return 404 if tenant not found", async () => {
     mockFindFirst.mockResolvedValue(null);
 
-    const res = await request(app).get("/api/tenants/999");
-
+    const res = await authGet("/api/tenants/999", "TENANT");
     expect(res.status).toBe(404);
     expect(res.body).toEqual({ error: "TENANT not found" });
   });
@@ -90,7 +112,7 @@ describe("API Tests", () => {
       { USEN_ID: 3, USEC_TYPE: "TENANT", USEC_LNAME: "Johnson" },
     ]);
 
-    const res = await request(app).get("/api/owners/1/tenants");
+    const res = await authGet("/api/owners/1/tenants", "OWNER");
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
   });
@@ -108,7 +130,7 @@ describe("API Tests", () => {
         USEC_LNAME: "Smith",
       });
 
-    const res = await request(app).get("/api/tenants/2/owner");
+    const res = await authGet("/api/tenants/2/owner", "TENANT");
     expect(res.status).toBe(200);
     expect(res.body.USEC_TYPE).toBe("OWNER");
   });
@@ -116,8 +138,7 @@ describe("API Tests", () => {
   test("GET /api/tenants/:id/owner should return 404 if tenant not found", async () => {
     mockFindFirst.mockResolvedValue(null);
 
-    const res = await request(app).get("/api/tenants/999/owner");
-
+    const res = await authGet("/api/tenants/999/owner", "OWNER");
     expect(res.status).toBe(404);
     expect(res.body).toEqual({ error: "TENANT not found" });
   });
@@ -132,7 +153,7 @@ describe("API Tests", () => {
       },
     ]);
 
-    const res = await request(app).get("/api/messages?from=1&to=2");
+    const res = await authGet("/api/messages?from=1&to=2", "TENANT");
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
   });
@@ -146,8 +167,7 @@ describe("API Tests", () => {
       })
       .mockResolvedValueOnce(null);
 
-    const res = await request(app).get("/api/tenants/2/owner");
-
+    const res = await authGet("/api/tenants/2/owner", "OWNER");
     expect(res.status).toBe(404);
     expect(res.body).toEqual({ error: "OWNER not found" });
   });
@@ -160,11 +180,15 @@ describe("API Tests", () => {
       MESC_CONTENT: "Hello from test!",
     });
 
-    const res = await request(app).post("/api/messages").send({
-      sender: 1,
-      receiver: 2,
-      content: "Hello from test!",
-    });
+    const res = await authPost(
+      "/api/messages",
+      {
+        sender: 1,
+        receiver: 2,
+        content: "Hello from test!",
+      },
+      "TENANT",
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -176,13 +200,30 @@ describe("API Tests", () => {
       throw new Error("Mocked DB failure");
     });
 
-    const res = await request(app).post("/api/messages").send({
-      sender: 1,
-      receiver: 2,
-      content: "This should trigger an error",
-    });
+    const res = await authPost(
+      "/api/messages",
+      {
+        sender: 1,
+        receiver: 2,
+        content: "This should trigger an error",
+      },
+      "OWNER",
+    );
 
     expect(res.status).toBe(500);
     expect(res.body).toEqual({ error: "Error server" });
+  });
+
+  test("GET /api/owners should return 403 if access denied by axios", async () => {
+    // Simule une réponse refusée par le middleware
+    mockedAxios.post.mockResolvedValueOnce({
+      status: 403,
+      data: { allowed: false },
+    });
+
+    const res = await authGet("/api/owners", "OWNER");
+
+    expect(res.status).toBe(403);
+    expect(res.body).toEqual({ error: "Access denied" });
   });
 });

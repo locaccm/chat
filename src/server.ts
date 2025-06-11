@@ -1,6 +1,7 @@
 import express, { Application } from "express";
 import http, { Server as HTTPServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
+import cors from "cors";
 import routes from "./routes";
 import { setupWebSocket } from "./websocket";
 import swaggerUi from "swagger-ui-express";
@@ -8,6 +9,8 @@ import swaggerSpec from "./swagger";
 import pgAdapter from "./dbAdapter";
 
 const app: Application = express();
+
+app.use(cors());
 
 app.use(express.json());
 app.use("/api", routes);

@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import prisma from "./prisma";
+import { checkAccess } from "./Middleware/Checkaccess";
 
 const router = express.Router();
 
@@ -42,7 +43,9 @@ const getUserByIdAndType = async (id: number, type: string, res: Response) => {
  *       500:
  *         description: Server error
  */
-router.get("/owners", (req, res) => getUsersByType("OWNER", res));
+router.get("/owners", checkAccess("getOwners"), (req, res) =>
+  getUsersByType("OWNER", res),
+);
 
 /**
  * @swagger
@@ -67,7 +70,7 @@ router.get("/owners", (req, res) => getUsersByType("OWNER", res));
  *       500:
  *         description: Server error
  */
-router.get("/owners/:id", (req, res) =>
+router.get("/owners/:id", checkAccess("getOwnerById"), (req, res) =>
   getUserByIdAndType(parseInt(req.params.id), "OWNER", res),
 );
 
@@ -85,7 +88,9 @@ router.get("/owners/:id", (req, res) =>
  *       500:
  *         description: Server error
  */
-router.get("/tenants", (req, res) => getUsersByType("TENANT", res));
+router.get("/tenants", checkAccess("getTenants"), (req, res) =>
+  getUsersByType("TENANT", res),
+);
 
 /**
  * @swagger
@@ -110,7 +115,7 @@ router.get("/tenants", (req, res) => getUsersByType("TENANT", res));
  *       500:
  *         description: Server error
  */
-router.get("/tenants/:id", (req, res) =>
+router.get("/tenants/:id", checkAccess("getTenantById"), (req, res) =>
   getUserByIdAndType(parseInt(req.params.id), "TENANT", res),
 );
 
@@ -135,20 +140,24 @@ router.get("/tenants/:id", (req, res) =>
  *       500:
  *         description: Server error
  */
-router.get("/owners/:id/tenants", async (req: Request, res: Response) => {
-  try {
-    const tenants = await prisma.uSER.findMany({
-      where: {
-        USEC_TYPE: "TENANT",
-        USEN_INVITE: parseInt(req.params.id),
-      },
-    });
-    res.json(tenants);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Error server" });
-  }
-});
+router.get(
+  "/owners/:id/tenants",
+  checkAccess("getTenantsByOwner"),
+  async (req: Request, res: Response) => {
+    try {
+      const tenants = await prisma.uSER.findMany({
+        where: {
+          USEC_TYPE: "TENANT",
+          USEN_INVITE: parseInt(req.params.id),
+        },
+      });
+      res.json(tenants);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Error server" });
+    }
+  },
+);
 
 /**
  * @swagger
@@ -173,24 +182,28 @@ router.get("/owners/:id/tenants", async (req: Request, res: Response) => {
  *       500:
  *         description: Server error
  */
-router.get("/tenants/:id/owner", async (req: Request, res: Response) => {
-  try {
-    const tenant = await prisma.uSER.findFirst({
-      where: { USEN_ID: parseInt(req.params.id), USEC_TYPE: "TENANT" },
-    });
-    if (!tenant) return res.status(404).json({ error: "TENANT not found" });
+router.get(
+  "/tenants/:id/owner",
+  checkAccess("getOwnerByTenant"),
+  async (req: Request, res: Response) => {
+    try {
+      const tenant = await prisma.uSER.findFirst({
+        where: { USEN_ID: parseInt(req.params.id), USEC_TYPE: "TENANT" },
+      });
+      if (!tenant) return res.status(404).json({ error: "TENANT not found" });
 
-    const owner = await prisma.uSER.findFirst({
-      where: { USEN_ID: tenant.USEN_INVITE ?? -1 },
-    });
-    if (!owner) return res.status(404).json({ error: "OWNER not found" });
+      const owner = await prisma.uSER.findFirst({
+        where: { USEN_ID: tenant.USEN_INVITE ?? -1 },
+      });
+      if (!owner) return res.status(404).json({ error: "OWNER not found" });
 
-    res.json(owner);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Error server" });
-  }
-});
+      res.json(owner);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Error server" });
+    }
+  },
+);
 
 /**
  * @swagger
@@ -219,33 +232,37 @@ router.get("/tenants/:id/owner", async (req: Request, res: Response) => {
  *       500:
  *         description: Server error
  */
-router.get("/messages", async (req: Request, res: Response) => {
-  const { from, to } = req.query;
+router.get(
+  "/messages",
+  checkAccess("getMessages"),
+  async (req: Request, res: Response) => {
+    const { from, to } = req.query;
 
-  try {
-    const messages = await prisma.mESSAGE.findMany({
-      where: {
-        OR: [
-          {
-            MESN_SENDER: parseInt(String(from)),
-            MESN_RECEIVER: parseInt(String(to)),
-          },
-          {
-            MESN_SENDER: parseInt(String(to)),
-            MESN_RECEIVER: parseInt(String(from)),
-          },
-        ],
-      },
-      orderBy: {
-        MESD_DATE: "asc",
-      },
-    });
-    res.json(messages);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Error server" });
-  }
-});
+    try {
+      const messages = await prisma.mESSAGE.findMany({
+        where: {
+          OR: [
+            {
+              MESN_SENDER: parseInt(String(from)),
+              MESN_RECEIVER: parseInt(String(to)),
+            },
+            {
+              MESN_SENDER: parseInt(String(to)),
+              MESN_RECEIVER: parseInt(String(from)),
+            },
+          ],
+        },
+        orderBy: {
+          MESD_DATE: "asc",
+        },
+      });
+      res.json(messages);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Error server" });
+    }
+  },
+);
 
 /**
  * @swagger
@@ -280,26 +297,30 @@ router.get("/messages", async (req: Request, res: Response) => {
  *       500:
  *         description: Server error
  */
-router.post("/messages", async (req: Request, res: Response) => {
-  const { sender, receiver, content } = req.body;
-  if (!sender || !receiver || !content) {
-    return res.status(400).json({ error: "Invalid data" });
-  }
+router.post(
+  "/messages",
+  checkAccess("sendMessage"),
+  async (req: Request, res: Response) => {
+    const { sender, receiver, content } = req.body;
+    if (!sender || !receiver || !content) {
+      return res.status(400).json({ error: "Invalid data" });
+    }
 
-  try {
-    const newMessage = await prisma.mESSAGE.create({
-      data: {
-        MESN_SENDER: parseInt(sender),
-        MESN_RECEIVER: parseInt(receiver),
-        MESC_CONTENT: content,
-        MESD_DATE: new Date(),
-      },
-    });
-    res.json({ success: true, message: newMessage });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Error server" });
-  }
-});
+    try {
+      const newMessage = await prisma.mESSAGE.create({
+        data: {
+          MESN_SENDER: parseInt(sender),
+          MESN_RECEIVER: parseInt(receiver),
+          MESC_CONTENT: content,
+          MESD_DATE: new Date(),
+        },
+      });
+      res.json({ success: true, message: newMessage });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Error server" });
+    }
+  },
+);
 
 export default router;
