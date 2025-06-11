@@ -1,29 +1,23 @@
-# Use official Node.js image
-FROM node:18
+FROM node:20-alpine
 
-# Set the working directory inside the container
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
+
+ARG AUTH_SERVICE_URL
+ENV AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
+
 WORKDIR /app
 
-# Install Prisma deps and others
-RUN apk add --no-cache libc6-compat
-
-# Copy package definition files
 COPY package*.json ./
 
-# Install dependencies
 RUN npm install
 
-# Copy application source code
 COPY . .
 
-RUN npx prisma db pull
-
-RUN npx prisma generate
-
+RUN npm run dbpull
+RUN npm run generate
 RUN npm run build
 
-# Expose the application's port
 EXPOSE 3000
 
-# Start the application
 CMD ["npm", "start"]
