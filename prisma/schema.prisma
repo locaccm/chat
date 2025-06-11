@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ACCOMMODATION {
+  ACCN_ID        Int      @id @default(autoincrement())
+  ACCC_NAME      String?  @db.VarChar(255)
+  ACCC_TYPE      String?  @db.VarChar(50)
+  ACCC_DESC      String?
+  ACCC_ADDRESS   String?
+  ACCB_AVAILABLE Boolean? @default(true)
+  USEN_ID        Int?
+  USER           USER?    @relation(fields: [USEN_ID], references: [USEN_ID], onDelete: Cascade, onUpdate: NoAction, map: "fk_accommodation_user")
+  LEASE          LEASE[]
+}
+
+model EVENT {
+  EVEN_ID    Int      @id @default(autoincrement())
+  EVEC_LIB   String   @db.VarChar(255)
+  EVED_START DateTime @db.Timestamp(6)
+  EVED_END   DateTime @db.Timestamp(6)
+  USEN_ID    Int
+  ACCN_ID    Int
+}
+
+model LEASE {
+  LEAN_ID       Int            @id @default(autoincrement())
+  LEAD_START    DateTime?      @db.Date
+  LEAD_END      DateTime?      @db.Date
+  LEAN_RENT     Decimal?       @db.Decimal(10, 2)
+  LEAN_CHARGES  Decimal?       @db.Decimal(10, 2)
+  LEAD_PAYMENT  DateTime?      @db.Date
+  LEAB_ACTIVE   Boolean?       @default(true)
+  USEN_ID       Int?
+  ACCN_ID       Int?
+  ACCOMMODATION ACCOMMODATION? @relation(fields: [ACCN_ID], references: [ACCN_ID], onDelete: Cascade, onUpdate: NoAction, map: "fk_lease_accommodation")
+  USER          USER?          @relation(fields: [USEN_ID], references: [USEN_ID], onDelete: Cascade, onUpdate: NoAction, map: "fk_lease_user")
+}
+
+model MESSAGE {
+  MESN_ID                          Int       @id @default(autoincrement())
+  MESN_RECEIVER                    Int?
+  MESN_SENDER                      Int?
+  MESC_CONTENT                     String?
+  MESD_DATE                        DateTime? @default(now()) @db.Timestamp(6)
+  MESB_NEW                         Boolean?  @default(true)
+  USER_MESSAGE_MESN_RECEIVERToUSER USER?     @relation("MESSAGE_MESN_RECEIVERToUSER", fields: [MESN_RECEIVER], references: [USEN_ID], onDelete: Cascade, onUpdate: NoAction, map: "fk_message_receiver")
+  USER_MESSAGE_MESN_SENDERToUSER   USER?     @relation("MESSAGE_MESN_SENDERToUSER", fields: [MESN_SENDER], references: [USEN_ID], onDelete: Cascade, onUpdate: NoAction, map: "fk_message_sender")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model USER {
+  USEN_ID                             Int             @id @default(autoincrement())
+  USEC_URLPP                          String?         @db.VarChar(255)
+  USEC_LNAME                          String?         @db.VarChar(255)
+  USEC_FNAME                          String?         @db.VarChar(255)
+  USEC_TYPE                           String?         @db.VarChar(10)
+  USEC_BIO                            String?
+  USED_BIRTH                          DateTime?       @db.Date
+  USEC_TEL                            String?         @db.VarChar(15)
+  USEC_ADDRESS                        String?
+  USEC_MAIL                           String?         @unique @db.VarChar(255)
+  USEC_PASSWORD                       String?
+  USEN_INVITE                         Int?
+  ACCOMMODATION                       ACCOMMODATION[]
+  LEASE                               LEASE[]
+  MESSAGE_MESSAGE_MESN_RECEIVERToUSER MESSAGE[]       @relation("MESSAGE_MESN_RECEIVERToUSER")
+  MESSAGE_MESSAGE_MESN_SENDERToUSER   MESSAGE[]       @relation("MESSAGE_MESN_SENDERToUSER")
+  USER                                USER?           @relation("USERToUSER", fields: [USEN_INVITE], references: [USEN_ID], onUpdate: NoAction, map: "fk_invite_owner")
+  other_USER                          USER[]          @relation("USERToUSER")
+}
