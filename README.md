@@ -1,30 +1,86 @@
-# chat
+# Chat App
 
-Test file location :
+A real-time chat application with contact access, built using Socket.io and Express.
 
-All test files must be located in src/tests/ and follow the .test.ts naming convention. Only these files will be included in test execution and coverage reports.
+## Features
 
-Don't forget to delete a.test.ts
+- Real-time messaging with WebSockets
+- User contact management
+- REST API for fetching users and their contacts
 
-Description
+## Table of Contents
 
-Real time chat app and contact access 
+- [Installation](#installation)
+- [API Documentation](#api-documentation)
+- [Contact](#contact)
 
-Documentation
+## Installation
 
-Requirements
+### Requirements
 
-Setup
+- Node.js (latest stable version recommended)
+- npm or yarn
 
-Testing
+### Dependencies:
 
-Configuration
+- socket.io
+- express
+- nodemon
 
-Road Map
+### Setup
 
-Discussion
+git clone https://github.com/your-username/chat-app.git
+cd chat-app
 
-Owner
+Install dependencies:
 
-Leo Lomel - in charge of test and chat
-leojet02100@live.fr
+npm install
+
+Start the server:
+
+npm run dev
+
+
+## API Documentation
+
+### Owners
+- `GET /api/owners`  
+  Retourne tous les owners.
+
+- `GET /api/owners/:id`  
+  Retourne un owner spécifique par son ID.
+
+- `GET /api/owners/:id/tenants`  
+  Retourne tous les tenants invités par un owner spécifique.
+
+### Tenants
+- `GET /api/tenants`  
+  Retourne tous les tenants.
+
+- `GET /api/tenants/:id`  
+  Retourne un tenant spécifique par son ID.
+
+- `GET /api/tenants/:id/owner`  
+  Retourne l’owner qui a invité ce tenant.
+
+### Messages
+- `GET /api/messages?from=<senderId>&to=<receiverId>`  
+  Retourne tous les messages échangés entre deux utilisateurs, triés par date.
+
+- `POST /api/messages`  
+  Envoie un message entre deux utilisateurs.  
+  Body JSON attendu :
+  ```json
+  {
+    "sender": "123",
+    "receiver": "456",
+    "content": "Hello!"
+  }
+
+Example request:
+
+curl -X GET http://localhost:3000/api/owners/1
+
+## Contact
+Owner: Leo Lomel
+Email: leojet02100@live.fr
