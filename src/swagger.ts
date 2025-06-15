@@ -8,11 +8,6 @@ const options = {
       version: "1.0.0",
       description: "API documentation for Chat app (Owners, Tenants, Messages)",
     },
-    servers: [
-      {
-        url: "http://localhost:3000",
-      },
-    ],
   },
   apis: ["src/routes.ts"],
 };
