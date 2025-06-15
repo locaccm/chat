@@ -15,7 +15,7 @@ app.use(
     origin: process.env.CORS_ORIGIN ?? "*",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     allowedHeaders: "Content-Type,Authorization,user-id",
-    credentials: true,
+    credentials: true,  
   }),
 ); //NOSONAR
 
