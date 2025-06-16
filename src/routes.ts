@@ -70,7 +70,7 @@ router.get("/owners", checkAccess("getOwners"), (req, res) =>
  *       500:
  *         description: Server error
  */
-router.get("/owners/:id", checkAccess("getOwnerById"), (req, res) =>
+router.get("/owners/:id", checkAccess("getOwnersById"), (req, res) =>
   getUserByIdAndType(parseInt(req.params.id), "OWNER", res),
 );
 
@@ -234,7 +234,7 @@ router.get(
  */
 router.get(
   "/messages",
-  checkAccess("getMessages"),
+  checkAccess("getMessage"),
   async (req: Request, res: Response) => {
     const { from, to } = req.query;
 
